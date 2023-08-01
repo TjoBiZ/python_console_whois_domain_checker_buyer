@@ -1,20 +1,31 @@
 import subprocess
 import time
 import requests
+import os
+from dotenv import load_dotenv      #pip install python-dotenv
 
-attempts = 5
-sleepy = 5
+# Load environment variables from .env file
+load_dotenv()
+
+# Access the environment variables
+domain = os.getenv('DOMAIN')
+telegram_bot_token = os.getenv('BOT_TOKEN')
+channel_name = os.getenv('CHANNEL_NAME')
+text_searching = os.getenv('TEXT_SEARCHING')
+
+attempts = 2
+sleepy = 2
 found = False
 
 for _ in range(attempts):
     # Запускаем команду whois и получаем ее вывод
-    result = subprocess.run(["whois", "tjo222.biz"], capture_output=True, text=True)
+    result = subprocess.run(["whois", domain], capture_output=True, text=True)
 
-    # Проверяем наличие текста "D7102714-BIZ" в выводе команды если предположим в консоли на проверку домена whois
+    # Проверяем наличие текста - "D7102714-BIZ" в выводе команды если предположим в консоли на проверку домена whois
     # #whois tjo.biz
     # #Domain Name: tools.biz
     # #Registry Domain ID: D7102714-BIZ
-    if "D7102714-BIZ" in result.stdout:
+    if text_searching in result.stdout:
         time.sleep(sleepy)
         found = True
         print("True")
@@ -25,11 +36,9 @@ for _ in range(attempts):
 
 # Если текст не был найден в выводе ни одной из попыток, выводим "False" в терминале
 if not found:
-    bot_token = "6475183517:AAHfZlrXWNbPqrLqOAQSDKACL5r_xfRcKY4"
-    channel_name = "@consolewatcherpython"  # Или ID канала, если указывали его числовое значение
     message_text = "Domain is available. Let's go to buy!!!"
 
-    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    url = f"https://api.telegram.org/bot{telegram_bot_token}/sendMessage"
     data = {"chat_id": channel_name, "text": message_text}
 
     response = requests.post(url, json=data)
